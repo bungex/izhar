@@ -2,10 +2,16 @@
 
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { useTheme } from "./ThemeProvider";
+// import { useTheme } from "./ThemeProvider";
+import dynamic from "next/dynamic";
+
+const ThemeButton = dynamic(() => import("./ThemeButton"), {
+  ssr: false,
+});
 
 export default function Navbar({ currentUser }) {
-  const { theme, toggleTheme } = useTheme();
+  // const { theme, toggleTheme } = useTheme();
+
 
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-card/80 backdrop-blur">
@@ -14,13 +20,7 @@ export default function Navbar({ currentUser }) {
           Izhar
         </Link>
         <div className="flex items-center gap-3">
-          <button
-            onClick={toggleTheme}
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition"
-            aria-label="Toggle theme"
-          >
-            {theme === "dark" ? "☀️" : "🌙"}
-          </button>
+          <ThemeButton />
           <Link
             href={`/profile/${currentUser.id}`}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition"
