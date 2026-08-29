@@ -11,44 +11,65 @@ function timeAgo(date) {
   return `${Math.floor(diff / 86400)}d ago`;
 }
 
+function Avatar({ name, size = "sm" }) {
+  const sizes = { sm: "w-7 h-7 text-xs", md: "w-9 h-9 text-sm" };
+  return (
+    <div
+      className={`${sizes[size]} rounded-full flex-shrink-0 flex items-center justify-center font-bold text-white`}
+      style={{ background: "linear-gradient(135deg, #0D9488, #0369A1)" }}
+    >
+      {name[0]}
+    </div>
+  );
+}
+
 function Comment({ comment, currentUser, postId, onDeleteComment, onAddComment, parentId = null }) {
   const [replying, setReplying] = useState(false);
   const [replyContent, setReplyContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   async function submitReply() {
     if (!replyContent.trim()) return;
+    setSubmitting(true);
     await onAddComment(postId, replyContent, comment.id);
     setReplyContent("");
     setReplying(false);
+    setSubmitting(false);
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1.5">
       <div className="flex items-start gap-2">
-        <div className="flex-1 bg-muted rounded-lg px-3 py-2 text-sm">
-          <Link href={`/profile/${comment.author.id}`} className="font-medium hover:underline">
-            {comment.author.name}
-          </Link>
-          <p className="text-foreground mt-0.5">{comment.content}</p>
-        </div>
-        <div className="flex items-center gap-2 pt-2">
-          {!parentId && (
-            <button onClick={() => setReplying(!replying)} className="text-xs text-muted-foreground hover:text-foreground">
-              Reply
+        <Avatar name={comment.author.name} size="sm" />
+        <div className="flex-1">
+          <div className="bg-muted rounded-xl px-3 py-2 text-sm">
+            <Link href={`/profile/${comment.author.id}`} className="font-semibold text-foreground hover:text-primary transition text-xs">
+              {comment.author.name}
+            </Link>
+            <p className="text-foreground mt-0.5 leading-relaxed">{comment.content}</p>
+          </div>
+          <div className="flex items-center gap-3 mt-1 px-1">
+            <span className="text-xs text-muted-foreground" suppressHydrationWarning>{timeAgo(comment.createdAt)}</span>
+            {!parentId && (
+              <button
+                onClick={() => setReplying(!replying)}
+                className="text-xs text-muted-foreground hover:text-primary font-medium transition"
+              >
+                Reply
+              </button>
+            )}
+            <button
+              onClick={() => onDeleteComment(postId, comment.id, parentId)}
+              className="text-xs text-muted-foreground hover:text-destructive transition"
+            >
+              Delete
             </button>
-          )}
-          <button
-            onClick={() => onDeleteComment(postId, comment.id, parentId)}
-            className="text-xs text-muted-foreground hover:text-destructive"
-          >
-            Delete
-          </button>
+          </div>
         </div>
       </div>
 
-      {/* Replies */}
       {comment.replies?.length > 0 && (
-        <div className="ml-6 flex flex-col gap-1 mt-1">
+        <div className="ml-9 flex flex-col gap-1.5">
           {comment.replies.map((reply) => (
             <Comment
               key={reply.id}
@@ -63,18 +84,19 @@ function Comment({ comment, currentUser, postId, onDeleteComment, onAddComment, 
         </div>
       )}
 
-      {/* Reply input */}
       {replying && (
-        <div className="ml-6 flex gap-2 mt-1">
+        <div className="ml-9 flex gap-2 mt-1">
           <input
             value={replyContent}
             onChange={(e) => setReplyContent(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && submitReply()}
             placeholder="Write a reply..."
-            className="flex-1 text-sm px-3 py-1.5 rounded-lg border border-border bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex-1 text-sm px-3 py-1.5 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
           />
           <button
             onClick={submitReply}
-            className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90"
+            disabled={submitting}
+            className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
           >
             Reply
           </button>
@@ -89,6 +111,7 @@ export default function PostCard({ post, currentUser, onDelete, onEdit, onReacti
   const [editContent, setEditContent] = useState(post.content);
   const [showComments, setShowComments] = useState(false);
   const [commentContent, setCommentContent] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const liked = post.reactions.some((r) => r.userId === currentUser.id);
 
@@ -99,101 +122,118 @@ export default function PostCard({ post, currentUser, onDelete, onEdit, onReacti
 
   async function handleComment() {
     if (!commentContent.trim()) return;
+    setSubmitting(true);
     await onAddComment(post.id, commentContent);
     setCommentContent("");
+    setSubmitting(false);
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
-            {post.author.name[0]}
-          </div>
+    <div className="rounded-xl border border-border bg-card shadow-sm p-4 flex flex-col gap-3 transition hover:shadow-md">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-2.5">
+          <Avatar name={post.author.name} size="md" />
           <div>
-            <Link href={`/profile/${post.author.id}`} className="text-sm font-medium hover:underline">
+            <Link href={`/profile/${post.author.id}`} className="text-sm font-semibold hover:text-primary transition">
               {post.author.name}
             </Link>
-            <p className="text-xs text-muted-foreground">{timeAgo(post.createdAt)}</p>
+            <p className="text-xs text-muted-foreground" suppressHydrationWarning>{timeAgo(post.createdAt)}</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => setEditing(!editing)} className="text-xs text-muted-foreground hover:text-foreground">
+        <div className="flex gap-1">
+          <button
+            onClick={() => setEditing(!editing)}
+            className="text-xs px-2.5 py-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition"
+          >
             Edit
           </button>
-          <button onClick={() => onDelete(post.id)} className="text-xs text-muted-foreground hover:text-destructive">
+          <button
+            onClick={() => onDelete(post.id)}
+            className="text-xs px-2.5 py-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+          >
             Delete
           </button>
         </div>
       </div>
 
-      {/* Content */}
       {editing ? (
         <div className="flex flex-col gap-2">
           <textarea
             value={editContent}
             onChange={(e) => setEditContent(e.target.value)}
             rows={3}
-            className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-1 focus:ring-ring resize-none"
+            className="w-full text-sm px-3 py-2 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 resize-none transition"
           />
           <div className="flex gap-2 justify-end">
-            <button onClick={() => setEditing(false)} className="text-sm px-3 py-1 rounded-lg border border-border hover:bg-muted">
+            <button
+              onClick={() => setEditing(false)}
+              className="text-sm px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition"
+            >
               Cancel
             </button>
-            <button onClick={handleEdit} className="text-sm px-3 py-1 rounded-lg bg-primary text-primary-foreground hover:opacity-90">
+            <button
+              onClick={handleEdit}
+              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition"
+            >
               Save
             </button>
           </div>
         </div>
       ) : (
-        <p className="text-sm leading-relaxed">{post.content}</p>
+        <p className="text-sm leading-relaxed text-foreground">{post.content}</p>
       )}
 
-      {/* Actions */}
-      <div className="flex items-center gap-4 pt-1">
+      <div className="flex items-center gap-1 pt-1 border-t border-border">
         <button
           onClick={() => onReaction(post.id)}
-          className={`flex items-center gap-1.5 text-sm transition ${liked ? "text-primary font-medium" : "text-muted-foreground hover:text-foreground"}`}
+          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition font-medium ${
+            liked ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
         >
           <span>{liked ? "♥" : "♡"}</span>
           <span>{post.reactions.length}</span>
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
-          className="text-sm text-muted-foreground hover:text-foreground transition"
+          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition ${
+            showComments ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
         >
-          💬 {post.comments.length} {post.comments.length === 1 ? "comment" : "comments"}
+          <span>💬</span>
+          <span>{post.comments.length} {post.comments.length === 1 ? "comment" : "comments"}</span>
         </button>
       </div>
 
-      {/* Comments */}
       {showComments && (
-        <div className="flex flex-col gap-3 pt-1 border-t border-border">
-          <div className="flex flex-col gap-2 mt-2">
-            {post.comments.map((comment) => (
-              <Comment
-                key={comment.id}
-                comment={comment}
-                currentUser={currentUser}
-                postId={post.id}
-                onDeleteComment={onDeleteComment}
-                onAddComment={onAddComment}
-              />
-            ))}
-          </div>
+        <div className="flex flex-col gap-3">
+          {post.comments.length > 0 && (
+            <div className="flex flex-col gap-3">
+              {post.comments.map((comment) => (
+                <Comment
+                  key={comment.id}
+                  comment={comment}
+                  currentUser={currentUser}
+                  postId={post.id}
+                  onDeleteComment={onDeleteComment}
+                  onAddComment={onAddComment}
+                />
+              ))}
+            </div>
+          )}
           <div className="flex gap-2">
             <input
               value={commentContent}
               onChange={(e) => setCommentContent(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleComment()}
               placeholder="Write a comment..."
-              className="flex-1 text-sm px-3 py-1.5 rounded-lg border border-border bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+              className="flex-1 text-sm px-3 py-1.5 rounded-lg border border-border bg-background focus:outline-none focus:ring-2 focus:ring-primary/30 transition"
             />
             <button
               onClick={handleComment}
-              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90"
+              disabled={submitting || !commentContent.trim()}
+              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
             >
-              Send
+              {submitting ? "..." : "Send"}
             </button>
           </div>
         </div>

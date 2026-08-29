@@ -4,6 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PostCard from "@/components/PostCard";
+import Navbar from "@/components/Navbar";
+
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString("en-US", {
@@ -82,19 +84,7 @@ export default function ProfileClient({ user, currentUser }) {
   return (
     <div className="min-h-screen bg-background">
       {/* Navbar */}
-      <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/feed" className="font-bold text-lg tracking-tight">
-            Izhar
-          </Link>
-          <Link
-            href={`/profile/${currentUser.id}`}
-            className="text-sm text-muted-foreground hover:text-foreground transition"
-          >
-            {currentUser.name}
-          </Link>
-        </div>
-      </header>
+      <Navbar currentUser={currentUser} />
 
       <main className="max-w-2xl mx-auto px-4 py-6 flex flex-col gap-6">
         {/* Profile header */}
