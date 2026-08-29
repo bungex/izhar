@@ -121,7 +121,7 @@ export default function FeedClient({ initialPosts, currentUser }) {
                 <button
                   onClick={handleCreatePost}
                   disabled={submitting || !content.trim()}
-                  className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition disabled:opacity-40"
+                  className="px-4 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {submitting ? "Posting..." : "Post"}
                 </button>

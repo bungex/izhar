@@ -71,12 +71,12 @@ export default function SignUpPage() {
               />
             </div>
             {error && (
-              <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg">{error}</p>
+              <p className="text-sm text-destructive bg-destructive/10 px-3 py-2 rounded-lg" style={{ color: "#F43F5E" }} >{error}</p>
             )}
             <button
               onClick={handleSubmit}
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition disabled:opacity-50 mt-1"
+              className="w-full py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-sm hover:opacity-90 transition disabled:opacity-50 mt-1 cursor-pointer disabled:cursor-not-allowed"
             >
               {loading ? "Creating account..." : "Create account"}
             </button>

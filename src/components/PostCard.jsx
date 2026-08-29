@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Heart, MessageCircle } from "lucide-react";
 
 function timeAgo(date) {
   const diff = (Date.now() - new Date(date)) / 1000;
@@ -53,14 +54,14 @@ function Comment({ comment, currentUser, postId, onDeleteComment, onAddComment, 
             {!parentId && (
               <button
                 onClick={() => setReplying(!replying)}
-                className="text-xs text-muted-foreground hover:text-primary font-medium transition"
+                className="text-xs text-muted-foreground hover:text-primary font-medium transition cursor-pointer"
               >
                 Reply
               </button>
             )}
             <button
               onClick={() => onDeleteComment(postId, comment.id, parentId)}
-              className="text-xs text-muted-foreground hover:text-destructive transition"
+              className="text-xs text-muted-foreground hover:text-destructive transition cursor-pointer"
             >
               Delete
             </button>
@@ -96,7 +97,7 @@ function Comment({ comment, currentUser, postId, onDeleteComment, onAddComment, 
           <button
             onClick={submitReply}
             disabled={submitting}
-            className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+            className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed" 
           >
             Reply
           </button>
@@ -140,16 +141,16 @@ export default function PostCard({ post, currentUser, onDelete, onEdit, onReacti
             <p className="text-xs text-muted-foreground" suppressHydrationWarning>{timeAgo(post.createdAt)}</p>
           </div>
         </div>
-        <div className="flex gap-1">
+        <div className="flex gap-1 cursor-pointer">
           <button
             onClick={() => setEditing(!editing)}
-            className="text-xs px-2.5 py-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition"
+            className="text-xs px-2.5 py-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition cursor-pointer"
           >
             Edit
           </button>
           <button
             onClick={() => onDelete(post.id)}
-            className="text-xs px-2.5 py-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition"
+            className="text-xs px-2.5 py-1 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition cursor-pointer"
           >
             Delete
           </button>
@@ -186,20 +187,22 @@ export default function PostCard({ post, currentUser, onDelete, onEdit, onReacti
       <div className="flex items-center gap-1 pt-1 border-t border-border">
         <button
           onClick={() => onReaction(post.id)}
-          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition font-medium ${
+          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition font-medium cursor-pointer ${
             liked ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
-          <span>{liked ? "♥" : "♡"}</span>
+          <Heart size={15}   style={{ fill: liked ? "#F43F5E" : "none", color: liked ? "#F43F5E" : "currentColor" }} />
+          {/* <span>{liked ? "♥" : "♡"}</span> */}
           <span>{post.reactions.length}</span>
         </button>
         <button
           onClick={() => setShowComments(!showComments)}
-          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition ${
+          className={`flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-lg transition cursor-pointer ${
             showComments ? "text-primary bg-primary/10" : "text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
         >
-          <span>💬</span>
+          <MessageCircle size={15} />
+          {/* <span>💬</span> */}
           <span>{post.comments.length} {post.comments.length === 1 ? "comment" : "comments"}</span>
         </button>
       </div>
@@ -231,7 +234,7 @@ export default function PostCard({ post, currentUser, onDelete, onEdit, onReacti
             <button
               onClick={handleComment}
               disabled={submitting || !commentContent.trim()}
-              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50"
+              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
             >
               {submitting ? "..." : "Send"}
             </button>
