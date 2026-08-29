@@ -6,11 +6,13 @@ import { prisma } from "@/lib/prisma";
 export async function POST(req, { params }) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  
+  const { id } = await params;
 
   const existing = await prisma.reaction.findUnique({
     where: {
       postId_userId: {
-        postId: params.id,
+        postId: id,
         userId: session.user.id,
       },
     },
@@ -21,7 +23,7 @@ export async function POST(req, { params }) {
     return NextResponse.json({ liked: false });
   } else {
     await prisma.reaction.create({
-      data: { postId: params.id, userId: session.user.id },
+      data: { postId: id, userId: session.user.id },
     });
     return NextResponse.json({ liked: true });
   }
