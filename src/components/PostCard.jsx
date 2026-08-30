@@ -168,13 +168,13 @@ export default function PostCard({ post, currentUser, onDelete, onEdit, onReacti
           <div className="flex gap-2 justify-end">
             <button
               onClick={() => setEditing(false)}
-              className="text-sm px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition"
+              className="text-sm px-3 py-1.5 rounded-lg border border-border hover:bg-muted transition cursor-pointer disabled:cursor-not-allowed"
             >
               Cancel
             </button>
             <button
               onClick={handleEdit}
-              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition"
+              className="text-sm px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:opacity-90 transition cursor-pointer disabled:cursor-not-allowed"
             >
               Save
             </button>
